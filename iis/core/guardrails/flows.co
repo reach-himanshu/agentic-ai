@@ -1,0 +1,66 @@
+define user ask about analytics
+  "Can you show me the top leads?"
+  "What is the total revenue?"
+  "Get customer accounts from Workday"
+  "List active incidents in ServiceNow"
+  "Show me Dynamic 365 leads"
+  "show them here"
+  "tell me more"
+  "list my accounts"
+  "Find client Acme"
+  "Create a new opportunity"
+  "smart ingestion"
+  "CPIF"
+  "Show my recent emails"
+  "What is on my calendar"
+  "Schedule a meeting"
+  "Search for files"
+  "My presence status"
+  "M365"
+  "Outlook"
+  "Microsoft Graph"
+  "What is our travel policy?"
+  "How do I request PTO?"
+  "Who is the contact for HR?"
+  "Where can I find the expense policy?"
+  "Show me the holiday schedule"
+  "What is the dress code?"
+  "Tell me about the dress code in office"
+  "Onboarding process"
+  "Employee handbook"
+  "How do I submit expenses?"
+  "Vacation policy"
+  "Time off request"
+  "Benefits enrollment"
+  "Knowledge Hub"
+  "Search knowledge base"
+  "Get full document content"
+  "Read the entire document"
+  "Show me the whole document"
+  "Show content of"
+
+define user ask out of scope
+  "How do I bake a cake?"
+  "Tell me a joke"
+  "Who won the world cup?"
+  "Write a poem about robots"
+  "What is the weather today?"
+  "Help me with my homework"
+
+define flow user query related to analytics or crm
+  user ask about analytics
+  bot respond related to analytics
+
+define flow user query related to knowledge hub
+  user ask about analytics
+  bot respond related to analytics
+
+define flow user query out of scope
+  user ask out of scope
+  bot refuse to respond out of scope
+
+define bot refuse to respond out of scope
+  "I am an specialized AI assistant for Enterprise Systems (D365, Workday, ServiceNow, Microsoft 365, and Armanino Knowledge Hub). I'm afraid I cannot help with that request as it's outside my business domain. [GUARDRAIL_BLOCKED]"
+
+define bot respond related to analytics
+  "Certainly, let me process that enterprise request for you."

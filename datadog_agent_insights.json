@@ -1,0 +1,162 @@
+{
+    "title": "Ops IQ Agent Insights",
+    "description": "Enterprise AI Governance, Security & Performance Monitoring",
+    "widgets": [
+        {
+            "definition": {
+                "title": "Total Agent Requests",
+                "type": "timeseries",
+                "requests": [
+                    {
+                        "q": "sum:trace.iis_backend.intent_detection.hits{*}",
+                        "display_type": "line"
+                    }
+                ]
+            },
+            "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 4,
+                "height": 2
+            }
+        },
+        {
+            "definition": {
+                "title": "Security: Blocked Requests (Firewall)",
+                "type": "timeseries",
+                "requests": [
+                    {
+                        "q": "sum:trace.iis_backend.intent_detection.hits{security.firewall_blocked:true}",
+                        "display_type": "bars",
+                        "style": {
+                            "palette": "orange"
+                        }
+                    }
+                ]
+            },
+            "layout": {
+                "x": 4,
+                "y": 0,
+                "width": 4,
+                "height": 2
+            }
+        },
+        {
+            "definition": {
+                "title": "Data Privacy: PII Redaction Frequency",
+                "type": "timeseries",
+                "requests": [
+                    {
+                        "q": "sum:trace.iis_backend.intent_detection.hits{pii.protected:true}",
+                        "display_type": "line",
+                        "style": {
+                            "palette": "purple"
+                        }
+                    }
+                ]
+            },
+            "layout": {
+                "x": 8,
+                "y": 0,
+                "width": 4,
+                "height": 2
+            }
+        },
+        {
+            "definition": {
+                "title": "Agent Latency (P95)",
+                "type": "timeseries",
+                "requests": [
+                    {
+                        "q": "p95:trace.iis_backend.intent_detection.duration{*}",
+                        "display_type": "line"
+                    }
+                ]
+            },
+            "layout": {
+                "x": 0,
+                "y": 2,
+                "width": 6,
+                "height": 2
+            }
+        },
+        {
+            "definition": {
+                "title": "Top Tool Usage",
+                "type": "toplist",
+                "requests": [
+                    {
+                        "q": "top(sum:trace.iis_backend.execute_tool.hits{*} by {tool.name}, 10, 'sum', 'desc')"
+                    }
+                ]
+            },
+            "layout": {
+                "x": 6,
+                "y": 2,
+                "width": 6,
+                "height": 2
+            }
+        },
+        {
+            "definition": {
+                "title": "PII Entities Masked (Total)",
+                "type": "query_value",
+                "requests": [
+                    {
+                        "q": "sum:trace.iis_backend.intent_detection.hits.pii.redaction_count{*}",
+                        "aggregator": "sum"
+                    }
+                ],
+                "precision": 0
+            },
+            "layout": {
+                "x": 0,
+                "y": 4,
+                "width": 3,
+                "height": 2
+            }
+        },
+        {
+            "definition": {
+                "title": "Model Distribution",
+                "type": "toplist",
+                "requests": [
+                    {
+                        "q": "sum:trace.iis_backend.intent_detection.hits{*} by {gen_ai.request.model}"
+                    }
+                ]
+            },
+            "layout": {
+                "x": 3,
+                "y": 4,
+                "width": 4,
+                "height": 2
+            }
+        },
+        {
+            "definition": {
+                "title": "Security Violations by Reason",
+                "type": "toplist",
+                "requests": [
+                    {
+                        "q": "sum:trace.iis_backend.intent_detection.hits{security.firewall_blocked:true} by {security.block_reason}"
+                    }
+                ]
+            },
+            "layout": {
+                "x": 7,
+                "y": 4,
+                "width": 5,
+                "height": 2
+            }
+        }
+    ],
+    "template_variables": [
+        {
+            "name": "env",
+            "prefix": "deployment.environment",
+            "default": "dev"
+        }
+    ],
+    "layout_type": "ordered"
+}

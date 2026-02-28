@@ -1,0 +1,81 @@
+# Client Onboarding Stage Update Plan
+# This plan handles updating a client's pipeline stage with confirmation
+
+plan_id: client_onboarding_stage_update
+name: "Client Onboarding Stage Update"
+description: "Update client stage with human-in-the-loop confirmation"
+required_roles:
+  - APP_ROLE_ADMIN
+  - APP_ROLE_SALES
+
+steps:
+  - id: lookup_client
+    action: mcp_tool
+    description: "Retrieve client details"
+    input_mapping:
+      client_id: "{{input.client_id}}"
+    output_variable: client_data
+
+  - id: check_stage_transition
+    action: validate_rule
+    description: "Validate stage transition is allowed"
+    input_mapping:
+      new_stage: "{{input.new_stage}}"
+    rule:
+      type: state_machine
+      allowed_transitions:
+        prospect:
+          - qualified
+          - closed_lost
+        qualified:
+          - negotiation
+          - closed_lost
+        negotiation:
+          - closed_won
+          - closed_lost
+
+  - id: display_confirmation
+    action: generative_ui
+    description: "Show confirmation card to user"
+    component: ConfirmationCard
+    schema:
+      title: "Confirm Stage Update"
+      description: "Please review the changes before applying"
+      fields:
+        - key: clientName
+          label: "Client"
+          value: "{{client_data.client.name}}"
+        - key: currentStage
+          label: "Current Stage"
+          value: "{{client_data.client.stage}}"
+          newValue: "{{input.new_stage}}"
+        - key: owner
+          label: "Owner"
+          value: "{{client_data.client.owner_name}}"
+        - key: notes
+          label: "Notes"
+          value: ""
+          editable: true
+    requires_confirmation: true
+
+  - id: update_stage
+    action: mcp_tool
+    description: "Apply the stage update"
+    tool: update_stage
+    input_mapping:
+      client_id: "{{client_data.client.id}}"
+      new_stage: "{{input.new_stage}}"
+      notes: "{{confirmation.notes}}"
+    condition: "{{confirmation.confirmed}}"
+    on_condition_false:
+      next_step: cancelled
+
+  - id: success
+    action: respond
+    description: "Notify user of success"
+    message: "Successfully updated {{client_data.client.name}} to {{input.new_stage}}"
+
+  - id: cancelled
+    action: respond
+    description: "Notify user of cancellation"
+    message: "Stage update cancelled by user"

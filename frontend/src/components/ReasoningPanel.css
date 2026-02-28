@@ -1,0 +1,185 @@
+/* ReasoningPanel - Moveworks-inspired reasoning transparency */
+
+.reasoning-panel {
+    --panel-bg: rgba(var(--color-surface-rgb), 0.8);
+    --panel-border: var(--color-border);
+    --text-primary: var(--color-text);
+    --text-secondary: var(--color-text-secondary);
+    --accent: var(--color-primary);
+
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    margin: 8px 0;
+    backdrop-filter: blur(8px);
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.reasoning-panel.expanded {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Toggle button */
+.reasoning-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: color 0.15s ease;
+}
+
+.reasoning-toggle:hover {
+    color: var(--text-primary);
+}
+
+.toggle-icon {
+    font-size: 0.7em;
+    opacity: 0.7;
+}
+
+.toggle-label {
+    flex: 1;
+    text-align: left;
+    font-weight: 500;
+}
+
+.step-count {
+    font-size: 0.8em;
+    padding: 2px 8px;
+    background: var(--accent);
+    color: white;
+    border-radius: 10px;
+}
+
+.step-count.has-errors {
+    background: var(--color-error, #ef4444);
+}
+
+/* Steps container */
+.reasoning-steps {
+    padding: 0 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Individual step */
+.reasoning-step {
+    padding: 10px 12px;
+    background: transparent;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+}
+
+.reasoning-step.status-complete {
+    /* No border styling - use green checkmark icon instead */
+}
+
+.reasoning-step.status-error {
+    background: rgba(239, 68, 68, 0.08);
+}
+
+.reasoning-step.status-in_progress {
+    /* Active step - no border */
+}
+
+.step-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.step-icon {
+    font-size: 1em;
+}
+
+.step-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.step-status {
+    font-size: 0.9em;
+}
+
+.step-status.pulsing {
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.step-message {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.step-tool {
+    margin-top: 6px;
+}
+
+.step-tool code {
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.8em;
+    padding: 2px 6px;
+    background: rgba(var(--color-surface-rgb), 0.8);
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    color: var(--accent);
+}
+
+.step-details {
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.detail-item {
+    display: inline-flex;
+    gap: 4px;
+    font-size: 0.8em;
+    padding: 2px 6px;
+    background: rgba(var(--color-surface-rgb), 0.6);
+    border-radius: 4px;
+}
+
+.detail-key {
+    color: var(--text-secondary);
+}
+
+.detail-value {
+    color: var(--text-primary);
+    font-family: 'Monaco', 'Menlo', monospace;
+}

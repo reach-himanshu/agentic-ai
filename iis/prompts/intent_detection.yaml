@@ -1,0 +1,30 @@
+name: intent_detection
+version: "1.0"
+description: Classifies user intent and extracts parameters for routing
+variables:
+  - message
+template: |
+  Analyze the user message and determine the intent.
+  
+  Available Intents:
+  1. update_client_stage: The user wants to update a client's pipeline stage (e.g., "Move Acme to qualified", "Update stage for Global Tech").
+  2. hr_time_entry: The user wants to log time, view their timesheet, or manage time entries (e.g., "Log 2 hours for Acme", "Show my timesheet", "I need to log my time", "Record time for client meeting").
+  3. knowledge_base_search: The user is asking about firm policies, HR documents, travel, expenses, or general business documentation.
+  4. general_query: Anything else (greetings, general questions, requests for info).
+  
+  If the intent is 'update_client_stage', extract:
+  - client_name: The name of the client (e.g., "Acme Corp"). Try to normalize common names.
+  - new_stage: The target stage. Use EXACTLY one of these: prospect, qualified, negotiation, closed_won, closed_lost. (Convert "Closed Won" to "closed_won").
+  
+  If the intent is 'hr_time_entry', extract:
+  - action: "log" if adding time, "view" if viewing timesheet
+  - hours: Number of hours if specified (e.g., "2", "2.5")
+  - project_hint: Any project/client name mentioned (e.g., "Acme", "client meeting")
+  
+  Return JSON format:
+  - {\"intent\": \"update_client_stage\", \"parameters\": {\"client_name\": \"Acme\", \"new_stage\": \"qualified\"}}
+  - {\"intent\": \"hr_time_entry\", \"parameters\": {\"action\": \"log\", \"hours\": \"2\", \"project_hint\": \"Acme\"}}
+  - {\"intent\": \"general_query\", \"parameters\": {}}
+  
+  User Message: "{message}"
+

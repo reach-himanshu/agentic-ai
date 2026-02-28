@@ -1,0 +1,14 @@
+models:
+  - type: main
+    engine: azure
+    model: gpt-4o-mini
+
+rails:
+  input:
+    flows:
+      - user query related to analytics or crm
+      - user query related to knowledge hub
+      - user query out of scope
+
+  output:
+    flows: []

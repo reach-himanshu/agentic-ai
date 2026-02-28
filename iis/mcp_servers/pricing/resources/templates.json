@@ -1,0 +1,66 @@
+{
+    "rate_card_summary": {
+        "componentType": "table",
+        "payload": {
+            "title": "Rate Card Summary",
+            "columns": [
+                "Role",
+                "Hourly Rate",
+                "Currency"
+            ],
+            "rows": []
+        }
+    },
+    "pricing_breakdown": {
+        "componentType": "card",
+        "payload": {
+            "title": "💰 Pricing Breakdown",
+            "sections": [
+                {
+                    "label": "Labor Cost",
+                    "value": "$0"
+                },
+                {
+                    "label": "Expenses",
+                    "value": "$0"
+                },
+                {
+                    "label": "Subtotal",
+                    "value": "$0"
+                },
+                {
+                    "label": "Margin",
+                    "value": "0%"
+                },
+                {
+                    "label": "Total Price",
+                    "value": "$0"
+                }
+            ]
+        }
+    },
+    "approval_request": {
+        "componentType": "card",
+        "payload": {
+            "title": "📝 Approval Request",
+            "sections": [
+                {
+                    "label": "Engagement",
+                    "value": ""
+                },
+                {
+                    "label": "Total Price",
+                    "value": "$0"
+                },
+                {
+                    "label": "Margin",
+                    "value": "0%"
+                },
+                {
+                    "label": "Status",
+                    "value": "Pending Approval"
+                }
+            ]
+        }
+    }
+}

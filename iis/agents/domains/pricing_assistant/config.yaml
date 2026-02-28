@@ -1,0 +1,214 @@
+name: Pricing Assistant
+description: Guides sellers through standardized pricing & scoping intake with ML-powered recommendations
+
+prompt_template: |
+  You are the **Armanino Pricing Assistant**, an expert in guiding sellers through complex pricing scenarios.
+  
+  **Core Responsibilities:**
+  - Collect intake data following standardized BU-specific question dictionaries
+  - Validate inputs against business rules (e.g., margin thresholds, required fields)
+  - Guide users through multi-phase wizard (CRM Context → Core Fields → BU Branch → Resourcing)
+  - Extract structured data from conversational inputs
+  - Generate dynamic forms with conditional fields
+  - Support backtracking and revision of previous answers
+  
+  **Interaction Style:**
+  - Ask one question at a time unless grouping related fields
+  - Provide tooltips and examples for complex fields
+  - Celebrate progress milestones (e.g., "✅ Core section complete!")
+  - Surface warnings early (e.g., "⚠️ This timeline compression may require approval")
+  - Be conversational and helpful, not robotic
+  
+  **Current Wizard Phase Context:**
+  The wizard state tracks: current_phase, collected_fields, validation_errors, and backtrack_history.
+  Always check the wizard state before responding to understand where the user is in the flow.
+
+owned_mcps:
+  - d365
+  - pricing  # Pricing-specific tools and rate cardsFuture: pricing_engine MCP (Checkpoint 3)
+  # For now, we'll use shared d365 MCP for CRM context
+
+tools:
+  # Phase 0: CRM Context
+  - d365_get_opportunity
+  - d365_search_accounts
+  
+  # Future tools (Checkpoint 3+):
+  # - pricing_ml_recommend
+  # - pricing_get_rate_card
+  # - pricing_calculate_blended_rate
+  # - doc_gen_pricing_summary
+  # - approval_request_submit
+
+pills:
+  - label: "New Pricing Request"
+    action: ask
+    value: "I need to create a new pricing request"
+  - label: "Resume Draft"
+    action: ask
+    value: "Show my draft pricing requests"
+  - label: "My Pending Quotes"
+    action: ask
+    value: "Show my quotes awaiting approval"
+  - label: "Recent Proposals"
+    action: ask
+    value: "List my recent pricing proposals"
+
+guardrails_scope:
+  - Pricing
+  - Scoping
+  - Quote
+  - Proposal
+  - SOW
+  - Engagement
+  - Pricing Request
+  - Fee
+  - Margin
+  - Discount
+
+# UI Templates for deterministic rendering (Tier 0 - Zero-LLM)
+ui_templates:
+  # Phase 0: CRM Context Confirmation
+  crm_context_confirmation:
+    type: form
+    title: "📋 Confirm CRM Context"
+    fields:
+      - key: account_name
+        label: "Account"
+        type: text
+        editable: false
+      - key: industry
+        label: "Industry"
+        type: text
+        editable: true
+      - key: opportunity_id
+        label: "Opportunity ID"
+        type: text
+        editable: false
+    submit_action: confirm_crm_context
+  
+  # Phase 1: Core Fields
+  core_fields_form:
+    type: form
+    title: "📋 Core Engagement Details"
+    fields:
+      - key: service_portfolio
+        label: "Service Line"
+        type: select
+        required: true
+        options:
+          - label: "Tax"
+            value: "tax"
+          - label: "Audit & Assurance"
+            value: "aa"
+          - label: "Managed Accounting"
+            value: "managed_acct"
+          - label: "Consulting (ServiceNow)"
+            value: "consulting_snow"
+          - label: "Consulting (D365)"
+            value: "consulting_d365"
+          - label: "Consulting (Salesforce)"
+            value: "consulting_sfdc"
+      - key: revenue_model
+        label: "Revenue Model"
+        type: select
+        required: true
+        options:
+          - label: "Time & Materials"
+            value: "tm"
+          - label: "Fixed Fee"
+            value: "fixed"
+          - label: "Milestone-Based"
+            value: "milestone"
+          - label: "Retainer / NTE"
+            value: "retainer"
+      - key: target_date
+        label: "Target Delivery Date"
+        type: date
+        required: true
+      - key: legal_entities_count
+        label: "Number of Legal Entities"
+        type: number
+        required: true
+      - key: geographies
+        label: "Geographies (comma-separated)"
+        type: text
+        required: true
+        tooltip: "e.g., US-CA, US-TX, UK"
+    submit_action: submit_core_fields
+  
+  # Phase 2: ServiceNow Scope (BU Branch)
+  servicenow_scope_form:
+    type: form
+    title: "🛠️ ServiceNow Engagement Scope"
+    fields:
+      - key: modules
+        label: "Modules in Scope"
+        type: multiselect
+        required: true
+        options:
+          - label: "IT Service Management (ITSM)"
+            value: "itsm"
+          - label: "IT Operations Management (ITOM)"
+            value: "itom"
+          - label: "HR Service Delivery (HRSD)"
+            value: "hrsd"
+          - label: "Customer Service Management (CSM)"
+            value: "csm"
+      - key: user_count
+        label: "Total User Count"
+        type: number
+        required: true
+        tooltip: "Total named users who will access the platform"
+      - key: customizations_score
+        label: "Customization Complexity (1-5)"
+        type: select
+        required: true
+        options:
+          - label: "1 - Minimal (OOTB)"
+            value: 1
+          - label: "2 - Light (Minor Config)"
+            value: 2
+          - label: "3 - Moderate (Custom Workflows)"
+            value: 3
+          - label: "4 - Heavy (Custom Apps)"
+            value: 4
+          - label: "5 - Extensive (Platform Extension)"
+            value: 5
+      - key: integration_endpoints
+        label: "Number of Integrations"
+        type: number
+        required: true
+      - key: migration_records
+        label: "Data Migration Record Count"
+        type: number
+        required: false
+        tooltip: "Leave blank if no migration"
+      - key: environments
+        label: "Environments"
+        type: multiselect
+        required: true
+        options:
+          - label: "Development"
+            value: "dev"
+          - label: "Test"
+            value: "test"
+          - label: "Production"
+            value: "prod"
+      - key: hypercare_weeks
+        label: "Hypercare Duration (weeks)"
+        type: number
+        required: true
+    submit_action: submit_snow_scope
+  
+  # Progress Summary Card
+  wizard_progress:
+    type: card
+    title: "📊 Pricing Request Progress"
+    fields:
+      - key: phase
+        label: "Current Phase"
+      - key: completion_pct
+        label: "Completion"
+      - key: next_step
+        label: "Next Step"

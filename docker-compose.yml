@@ -1,0 +1,77 @@
+# Ops IQ: Full Stack Containerized Deployment
+# Compatible with Docker and Podman (use podman-compose)
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: opsiq
+      POSTGRES_PASSWORD: opsiqpassword
+      POSTGRES_DB: opsiq_sessions
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  t2v-transformers:
+    image: cr.weaviate.io/semitechnologies/transformers-inference:sentence-transformers-multi-qa-MiniLM-L6-cos-v1
+    environment:
+      ENABLE_CUDA: '0'
+
+  weaviate:
+    image: cr.weaviate.io/semitechnologies/weaviate:1.27.0
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+    restart: on-failure:0
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'text2vec-transformers'
+      ENABLE_MODULES: 'text2vec-transformers'
+      TRANSFORMERS_INFERENCE_API: 'http://t2v-transformers:8080'
+      CLUSTER_HOSTNAME: 'node1'
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+
+  iis:
+    image: opsiq-iis-final
+    pull_policy: never
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://opsiq:opsiqpassword@postgres:5432/opsiq_sessions
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+      - TRACELOOP_API_KEY=${TRACELOOP_API_KEY}
+      - DD_API_KEY=${DD_API_KEY}
+      - DD_SITE=${DD_SITE}
+    depends_on:
+      - postgres
+
+  librarian-gateway:
+    build:
+      context: .
+      dockerfile: librarian/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - WEAVIATE_URL=http://weaviate:8080
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+    depends_on:
+      - weaviate
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - iis
+
+volumes:
+  weaviate_data:
+  postgres_data:

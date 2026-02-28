@@ -1,0 +1,82 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+
+# JavaScript / Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+.vite/
+.tauri/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local Databases
+*.db
+iis/*.db
+
+# Debug & Repro Scripts
+debug_*.py
+diag_*.py
+verify_*.py
+check_*.py
+run_*.py
+reset_*.py
+test_firewall_repro.py
+test_security_standalone.py
+test_dd_api.py
+test_ingest.py
+test_doc.txt
+firewall_repro_debug.txt
+iis/startup_log.txt
+iis/migrate_output.txt
+iis/migrate_to_postgres.py

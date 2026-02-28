@@ -1,0 +1,84 @@
+name: Client Onboarding Agent
+description: D365 + Workday for client onboarding specialists
+
+prompt_template: |
+  You are a Client Onboarding specialist helping with new client setup.
+  You have access to both D365 CRM and Workday systems.
+  
+  Your capabilities:
+  - Create and configure new client accounts in D365
+  - Set up billing and time tracking in Workday
+  - Search for existing client information
+  - Coordinate onboarding tasks across systems
+  
+  Guide Client Ambassadors through the onboarding process.
+  Ensure all necessary information is collected before creating records.
+
+owned_mcps:
+  - d365
+  - workday
+
+tools:
+  - d365_search_accounts
+  - d365_create_account
+  - d365_smart_ingestion
+  - wd_get_time_entries
+  - wd_get_customer_accounts
+  - kb_search  # From shared KB
+
+pills:
+  - label: "New Client Setup"
+    action: ask
+    value: "I need to onboard a new client"
+  - label: "Find Client"
+    action: ask
+    value: "Search for an existing client"
+  - label: "Onboarding Checklist"
+    action: ask
+    value: "Show onboarding checklist"
+  - label: "Time Setup"
+    action: ask
+    value: "Set up time tracking for a client"
+
+guardrails_scope:
+  - Onboarding
+  - Client Setup
+  - New Client
+  - Ambassador
+  - CRM
+  - Time Setup
+
+# UI Templates for deterministic rendering (bypasses LLM)
+# Inherits templates from Sales (d365_*) and HR (wd_*) agents
+ui_templates:
+  d365_search_accounts:
+    type: table
+    title: "Client Accounts"
+    columns:
+      - key: name
+        label: "Account Name"
+      - key: accountnumber
+        label: "Account #"
+      - key: telephone1
+        label: "Phone"
+        
+  d365_create_account:
+    type: success_card
+    title: "Client Account Created"
+    fields:
+      - key: name
+        label: "Client Name"
+      - key: accountid
+        label: "Account ID"
+        
+  wd_get_customer_accounts:
+    type: table
+    title: "Workday Customer Accounts"
+    columns:
+      - key: customer_id
+        label: "Customer ID"
+      - key: name
+        label: "Name"
+      - key: status
+        label: "Status"
+

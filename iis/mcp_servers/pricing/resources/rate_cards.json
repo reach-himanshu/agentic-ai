@@ -1,0 +1,137 @@
+{
+    "tax": {
+        "Partner": {
+            "hourly_rate": 400,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Senior Manager": {
+            "hourly_rate": 250,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Manager": {
+            "hourly_rate": 175,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Senior": {
+            "hourly_rate": 125,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Staff": {
+            "hourly_rate": 85,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        }
+    },
+    "aa": {
+        "Partner": {
+            "hourly_rate": 450,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Senior Manager": {
+            "hourly_rate": 275,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Manager": {
+            "hourly_rate": 200,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Senior": {
+            "hourly_rate": 135,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Staff": {
+            "hourly_rate": 95,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        }
+    },
+    "managed_acct": {
+        "Partner": {
+            "hourly_rate": 350,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Senior Manager": {
+            "hourly_rate": 225,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Manager": {
+            "hourly_rate": 160,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Senior": {
+            "hourly_rate": 110,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Staff": {
+            "hourly_rate": 75,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        }
+    },
+    "consulting_snow": {
+        "Partner": {
+            "hourly_rate": 500,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Senior Manager": {
+            "hourly_rate": 325,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Manager": {
+            "hourly_rate": 225,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Senior": {
+            "hourly_rate": 150,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Staff": {
+            "hourly_rate": 100,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        }
+    },
+    "consulting_d365": {
+        "Partner": {
+            "hourly_rate": 500,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Senior Manager": {
+            "hourly_rate": 325,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Manager": {
+            "hourly_rate": 225,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Senior": {
+            "hourly_rate": 150,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        },
+        "Staff": {
+            "hourly_rate": 100,
+            "currency": "USD",
+            "effective_date": "2024-01-01"
+        }
+    }
+}

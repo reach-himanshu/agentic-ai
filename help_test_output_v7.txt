@@ -1,0 +1,7 @@
+Sending message: 'help'
+Status Code: 200
+
+--- Agent Response ---
+Content: I can help you with Dynamics 365, Workday, ServiceNow, and knowledge retrieval. Which area would you like to explore?
+UI Component: pills
+Payload Labels: ['Dynamics 365', 'Workday', 'ServiceNow', 'Armanino Knowledge Hub']

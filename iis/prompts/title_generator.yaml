@@ -1,0 +1,12 @@
+name: title_generator
+version: "1.0"
+description: Generates concise titles for chat sessions
+variables:
+  - user_message
+  - assistant_response
+template: |
+  Generate a very concise, human-readable title (max 5 words) for a chat session based on the first interaction.
+  User: {user_message}
+  Assistant: {assistant_response}
+  
+  Title:

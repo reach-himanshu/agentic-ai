@@ -1,0 +1,7 @@
+Sending message: 'help'
+Status Code: 200
+
+--- Agent Response ---
+Content: I am an specialized AI assistant for Enterprise Systems. I'm afraid I cannot help with that request as it's outside my business domain.
+UI Component: info
+Request failed: 'str' object has no attribute 'get'

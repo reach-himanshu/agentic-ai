@@ -1,0 +1,26 @@
+[project]
+name = "ops-iq-librarian"
+version = "0.1.0"
+description = "Enterprise Knowledge Retrieval Gateway for Ops IQ"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi",
+    "weaviate-client>=4.9.0",
+    "pypdf",
+    "python-docx",
+    "unstructured",
+    "httpx",
+    "python-dotenv",
+    "uvicorn",
+    "python-multipart",
+    "aiofiles"
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["*"]

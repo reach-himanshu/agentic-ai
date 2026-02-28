@@ -1,0 +1,142 @@
+name: HR Agent
+description: Workday HR self-service
+
+prompt_template: |
+  You are an HR self-service assistant helping with Workday operations.
+  Focus on time entries, PTO, benefits, and HR-related queries.
+  
+  Your capabilities:
+  - Log and view time entries using the time entry tools
+  - Check PTO balances and request time off
+  - Search for employee information
+  - Look up HR policies from Knowledge Hub
+  
+  When a user wants to log time, use the wd_add_time_entry tool.
+  When a user wants to view their timesheet, use the wd_get_my_timesheet tool.
+  
+  Available projects: Acme Corp - Digital Transformation, Beta Inc - Audit Support, Internal / Admin
+  Available time codes: CONSULT-BILL (billable), AUDIT-BILL (billable), FIRM-MTG, PROF-DEV, ADMIN
+
+owned_mcps:
+  - workday
+  - time_entry
+
+tools:
+  - wd_add_time_entry
+  - wd_get_my_timesheet
+  - wd_search_workers
+  - kb_search
+
+# Hardcoded projects for dropdown
+projects:
+  - id: "ACME-DT-2026"
+    name: "Acme Corp - Digital Transformation"
+    client: "Acme Corp"
+  - id: "BETA-AUD-2026"
+    name: "Beta Inc - Audit Support"
+    client: "Beta Inc"
+  - id: "INTERNAL"
+    name: "Internal / Admin"
+    client: null
+
+# Standard time codes for dropdown
+time_codes:
+  - code: "CONSULT-BILL"
+    label: "Consulting (Billable)"
+    requires_project: true
+  - code: "AUDIT-BILL"
+    label: "Audit (Billable)"
+    requires_project: true
+  - code: "FIRM-MTG"
+    label: "Firm Meetings"
+    requires_project: false
+  - code: "PROF-DEV"
+    label: "Professional Development"
+    requires_project: false
+  - code: "ADMIN"
+    label: "Administrative"
+    requires_project: false
+
+pills:
+  - label: "My Timesheet"
+    action: ask
+    value: "Show my timesheet for this week"
+  - label: "Log Time"
+    action: ask
+    value: "I need to log my time"
+  - label: "PTO Balance"
+    action: ask
+    value: "What is my PTO balance?"
+  - label: "HR Policy"
+    action: ask
+    value: "Find HR policy information"
+
+guardrails_scope:
+  - HR
+  - Human Resources
+  - Workday
+  - Time Entry
+  - Timesheet
+  - PTO
+  - Vacation
+  - Benefits
+  - Payroll
+
+# UI Templates for deterministic rendering
+ui_templates:
+  wd_get_my_timesheet:
+    type: timesheet
+    title: "Your Timesheet"
+
+  wd_add_time_entry:
+    type: confirmation
+    title: "Time Entry Added"
+
+  time_entry_form:
+    type: form
+    title: "Log Time Entry"
+    fields:
+      - name: project_id
+        label: "Project"
+        type: dropdown
+        source: projects
+        required: true
+      - name: time_code
+        label: "Time Code"
+        type: dropdown
+        source: time_codes
+        required: true
+      - name: hours
+        label: "Hours"
+        type: number
+        min: 0.5
+        max: 24
+        step: 0.5
+        required: true
+      - name: date
+        label: "Date"
+        type: date
+        default: today
+      - name: notes
+        label: "Notes"
+        type: text
+    actions:
+      - label: "Save Draft"
+        action: wd_add_time_entry
+        variant: primary
+
+  wd_search_workers:
+    type: table
+    title: "Employee Search Results"
+    columns:
+      - key: name
+        label: "Name"
+      - key: email
+        label: "Email"
+      - key: department
+        label: "Department"
+
+  kb_search:
+    type: markdown
+    title: "Knowledge Hub Results"
+

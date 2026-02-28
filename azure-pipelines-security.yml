@@ -1,0 +1,155 @@
+# Azure DevOps Pipeline - Security Code and Dependency Scanning
+# Triggers on main, develop, and feature branches for comprehensive security analysis
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+      - jk-dev-*
+  paths:
+    include:
+      - '*'
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+      - jk-dev-*
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  # Python version
+  pythonVersion: '3.11'
+  # Node version
+  nodeVersion: '20.x'
+
+stages:
+  - stage: SecurityScanning
+    displayName: 'Advanced Security Code Scanning'
+    jobs:
+      - job: ScanPython
+        displayName: 'CodeQL Scan - Python Components'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(pythonVersion)'
+            displayName: 'Use Python $(pythonVersion)'
+
+          - task: AdvancedSecurity-Codeql-Init@1
+            inputs:
+              languages: 'python'
+              querysuite: 'security-extended'
+            displayName: 'Initialize CodeQL for Python'
+
+          # Install dependencies for better analysis
+          - script: |
+              echo "Installing Python dependencies for analysis..."
+              python -m pip install --upgrade pip
+              
+              # Backend
+              if [ -d "backend" ]; then
+                cd backend && pip install -e . && cd ..
+              fi
+              
+              # Orchestrator
+              if [ -d "orchestrator" ]; then
+                cd orchestrator && pip install -e . && cd ..
+              fi
+              
+              # IIS
+              if [ -d "iis" ]; then
+                cd iis && pip install -e . && cd ..
+              fi
+              
+              # Librarian
+              if [ -d "librarian" ]; then
+                cd librarian && pip install -e . && cd ..
+              fi
+            displayName: 'Install Python Dependencies'
+            continueOnError: true
+
+          - task: AdvancedSecurity-Codeql-Analyze@1
+            displayName: 'Analyze Python Code with CodeQL'
+
+      - job: ScanJavaScript
+        displayName: 'CodeQL Scan - JavaScript/TypeScript Components'
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '$(nodeVersion)'
+            displayName: 'Use Node.js $(nodeVersion)'
+
+          - task: AdvancedSecurity-Codeql-Init@1
+            inputs:
+              languages: 'javascript'
+              querysuite: 'security-extended'
+            displayName: 'Initialize CodeQL for JavaScript/TypeScript'
+
+          # Install dependencies for better analysis
+          - script: |
+              echo "Installing Node dependencies for analysis..."
+              
+              # Frontend
+              if [ -d "frontend" ]; then
+                cd frontend && npm ci && cd ..
+              fi
+              
+              # Knowledge Hub UI
+              if [ -d "knowledge-hub-ui" ]; then
+                cd knowledge-hub-ui && npm ci && cd ..
+              fi
+            displayName: 'Install Node Dependencies'
+            continueOnError: true
+
+          - task: AdvancedSecurity-Codeql-Analyze@1
+            displayName: 'Analyze JavaScript/TypeScript Code with CodeQL'
+
+      - job: ScanRust
+        displayName: 'Rust/Tauri Security Scan'
+        condition: succeeded()
+        steps:
+          - script: |
+              echo "Checking for Rust/Tauri components..."
+              if [ -d "frontend/src-tauri" ]; then
+                echo "Tauri project found, running cargo audit..."
+                curl https://sh.rustup.rs -sSf | sh -s -- -y
+                source $HOME/.cargo/env
+                cargo install cargo-audit
+                cd frontend/src-tauri
+                cargo audit
+              else
+                echo "No Tauri project found, skipping Rust scan."
+              fi
+            displayName: 'Audit Rust Dependencies (cargo-audit)'
+            continueOnError: true
+
+      - job: DependencyScanning
+        displayName: 'Dependency Scanning'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(pythonVersion)'
+            displayName: 'Use Python $(pythonVersion)'
+
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '$(nodeVersion)'
+            displayName: 'Use Node.js $(nodeVersion)'
+
+          - task: AdvancedSecurity-Dependency-Scanning@1
+            displayName: 'Scan Dependencies for Vulnerabilities'
+
+  - stage: PublishResults
+    displayName: 'Publish Security Results'
+    dependsOn: SecurityScanning
+    condition: always()
+    jobs:
+      - job: PublishSARIF
+        displayName: 'Publish SARIF Results'
+        steps:
+          - task: AdvancedSecurity-Publish@1
+            displayName: 'Publish Security Scan Results'

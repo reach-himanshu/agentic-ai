@@ -1,0 +1,101 @@
+name: Sales Agent
+description: Dynamics 365 CRM + CPQ operations specialist
+
+prompt_template: |
+  You are a CRM specialist helping with Dynamics 365 operations.
+  Focus on accounts, contacts, opportunities, and client relationships.
+  
+  Your capabilities:
+  - Search and find client accounts in D365
+  - Create and manage opportunities
+  - Import client data (Smart Ingestion)
+  - View upcoming client meetings from M365 calendar
+  
+  Be concise and professional. Always cite relevant data.
+
+owned_mcps:
+  - d365
+  # - cpq  # Future: when CPQ MCP is available
+
+tools:
+  - d365_search_accounts
+  - d365_create_account
+  - d365_create_opportunity
+  - d365_smart_ingestion
+  - graph_list_events  # From shared M365
+
+pills:
+  - label: "Find Client"
+    action: ask
+    value: "Search for a client by name"
+  - label: "New Opportunity"
+    action: ask
+    value: "Create a new sales opportunity"
+  - label: "Client Ingestion"
+    action: ask
+    value: "Import new client data"
+  - label: "My Meetings"
+    action: ask
+    value: "Show my upcoming client meetings"
+
+guardrails_scope:
+  - CRM
+  - Sales
+  - Pipeline
+  - Client
+  - Account
+  - Dynamics 365
+  - D365
+  - Opportunity
+  - Lead
+
+# UI Templates for deterministic rendering (bypasses LLM)
+ui_templates:
+  d365_search_accounts:
+    type: table
+    title: "Client Accounts"
+    columns:
+      - key: name
+        label: "Account Name"
+      - key: accountnumber
+        label: "Account #"
+      - key: telephone1
+        label: "Phone"
+      - key: emailaddress1
+        label: "Email"
+    row_actions:
+      - label: "View Details"
+        action: ask
+        value: "Show details for account {name}"
+        
+  d365_create_account:
+    type: success_card
+    title: "Account Created"
+    fields:
+      - key: name
+        label: "Account Name"
+      - key: accountid
+        label: "Account ID"
+        
+  d365_create_opportunity:
+    type: success_card
+    title: "Opportunity Created"
+    fields:
+      - key: name
+        label: "Opportunity Name"
+      - key: opportunityid
+        label: "Opportunity ID"
+        
+  graph_list_events:
+    type: table
+    title: "Upcoming Meetings"
+    columns:
+      - key: subject
+        label: "Subject"
+      - key: start
+        label: "Start Time"
+      - key: end
+        label: "End Time"
+      - key: location
+        label: "Location"
+

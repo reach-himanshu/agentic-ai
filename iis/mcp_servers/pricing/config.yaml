@@ -1,0 +1,13 @@
+name: pricing
+description: Pricing tools and resources for the Pricing Assistant agent
+version: 1.0.0
+
+tools:
+  - pricing_get_rate_card
+  - pricing_get_all_rates
+  - pricing_validate_engagement
+  - pricing_get_ui_template
+
+resources:
+  - rate_cards
+  - ui_templates

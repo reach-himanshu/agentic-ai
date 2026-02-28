@@ -1,0 +1,108 @@
+name: IT Support Agent
+description: ServiceNow ticketing and IT help desk
+
+prompt_template: |
+  You are an IT Support specialist helping with ServiceNow operations.
+  Focus on incident management, ticket creation, and IT self-service.
+  
+  Your capabilities:
+  - Create new incidents/tickets
+  - Search and track existing incidents
+  - Update incidents with work notes
+  - Search ServiceNow knowledge base
+  - Manage approvals
+  
+  When creating incidents, ask for:
+  - Clear description of the issue
+  - Impact and urgency if not provided
+  
+  Be helpful and guide users through IT processes.
+
+owned_mcps:
+  - servicenow
+
+tools:
+  - snow_create_incident
+  - snow_search_incidents
+  - snow_update_incident
+  - snow_list_approvals
+  - snow_approve_request
+  - snow_search_knowledge
+  - kb_search  # From shared KB
+
+pills:
+  - label: "Report Issue"
+    action: ask
+    value: "I need to report an IT issue"
+  - label: "My Tickets"
+    action: ask
+    value: "Show my open IT tickets"
+  - label: "Check Status"
+    action: ask
+    value: "Check status of a ticket"
+  - label: "My Approvals"
+    action: ask
+    value: "Show my pending approvals"
+
+guardrails_scope:
+  - IT
+  - Support
+  - Ticket
+  - Incident
+  - ServiceNow
+  - Help Desk
+  - Password
+  - Access
+
+# UI Templates for deterministic rendering (bypasses LLM)
+ui_templates:
+  snow_search_incidents:
+    type: table
+    title: "Your IT Tickets"
+    columns:
+      - key: number
+        label: "Ticket #"
+      - key: short_description
+        label: "Description"
+      - key: state
+        label: "Status"
+      - key: priority
+        label: "Priority"
+    row_actions:
+      - label: "View Details"
+        action: ask
+        value: "Show details for incident {number}"
+        
+  snow_list_approvals:
+    type: card_list
+    title: "Pending Approvals"
+    fields:
+      - key: target
+        label: "Request"
+      - key: state
+        label: "Status"
+      - key: created
+        label: "Created"
+    primary_action:
+      label: "Approve"
+      action: ask
+      value: "Approve request {sys_id}"
+      
+  snow_create_incident:
+    type: success_card
+    title: "Incident Created"
+    fields:
+      - key: number
+        label: "Ticket #"
+      - key: link
+        label: "Link"
+        
+  snow_search_knowledge:
+    type: card_list
+    title: "Knowledge Articles"
+    fields:
+      - key: title
+        label: "Title"
+      - key: number
+        label: "Article #"
+
