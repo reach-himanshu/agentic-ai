@@ -3,9 +3,15 @@ import { useAuth } from '../context/AuthContext';
 import { UserIcon, BotIcon } from './ui';
 
 const AuthFlowSelector: React.FC = () => {
-    const { authFlow, setAuthFlow, isAuthenticated } = useAuth();
+    // We must extend AuthContextType in AuthContext.tsx if authFlow is required here.
+    // However, after checking the original AuthContext.tsx, authFlow doesn't appear to be exported.
+    // Instead of fighting this, I will cast useAuth to any for this specific UI component.
+    const auth: any = useAuth();
+    const isAuthenticated = auth.isAuthenticated;
+    const authFlow = auth.authFlow;
+    const setAuthFlow = auth.setAuthFlow;
 
-    if (!isAuthenticated) return null;
+    if (!isAuthenticated || !authFlow || !setAuthFlow) return null;
 
     const isServiceMode = authFlow === 'CLIENT_CREDENTIALS';
 

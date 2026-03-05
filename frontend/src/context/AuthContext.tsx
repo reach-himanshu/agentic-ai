@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { useMsal, useAccount } from "@azure/msal-react";
 import { loginRequest, tokenRequest } from "../authConfig";
 import { agentSocket } from '../services/agentSocket';
+import * as microsoftTeams from '@microsoft/teams-js';
 
 // Dev mode check - set VITE_DEV_MODE=true in .env to enable
 const isDevMode = import.meta.env.VITE_DEV_MODE === 'true';
@@ -21,6 +22,7 @@ export interface AuthState {
     isLoading: boolean;
     selectedModelId?: string;
     isDevMode?: boolean;
+    isTeamsContext?: boolean;
 }
 
 interface AuthContextType extends AuthState {
@@ -51,29 +53,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return localStorage.getItem('agent_ui_model') || undefined;
     });
 
+    // Teams state
+    const [isTeamsContext, setIsTeamsContext] = useState<boolean>(false);
+    const [teamsToken, setTeamsToken] = useState<string | null>(null);
+
     // Dev mode state
     const [devModeActive, setDevModeActive] = useState<boolean>(() => {
         return localStorage.getItem('agent_ui_dev_mode') === 'true';
     });
 
     const [accessToken, setAccessToken] = useState<string | null>(() => {
-        // Restore dev token if dev mode was active
         if (localStorage.getItem('agent_ui_dev_mode') === 'true') {
             return DEV_TOKEN;
         }
         return null;
     });
 
-    const isAuthenticated = !!account || devModeActive;
+    // Handle Teams initialization
+    useEffect(() => {
+        const initTeams = async () => {
+            try {
+                await microsoftTeams.app.initialize();
+                const context = await microsoftTeams.app.getContext();
+                if (context.app.host.name === microsoftTeams.HostName.teams) {
+                    setIsTeamsContext(true);
+                    console.log("[AuthContext] Microsoft Teams context detected.");
+                }
+            } catch (err) {
+                // Not in Teams context - normal browser behavior
+                console.log("[AuthContext] Not running in Microsoft Teams container, falling back to MSAL.");
+            }
+        };
+        initTeams();
+    }, []);
+
+    const isAuthenticated = !!account || devModeActive || !!teamsToken;
     const isLoading = inProgress !== "none";
 
-    // Reconstruct user object from MSAL account or dev mode mock
-    const user: User | null = devModeActive ? DEV_USER : (account ? {
-        id: account.localAccountId,
-        email: account.username,
-        name: account.name || account.username,
-        roles: (account.idTokenClaims?.roles as string[]) || [],
-    } : null);
+    // Reconstruct user object
+    let user: User | null = null;
+    if (devModeActive) {
+        user = DEV_USER;
+    } else if (isTeamsContext && teamsToken) {
+        // We defer role parsing to the backend for Teams tokens, or we decode JWT payload here if needed.
+        // For now, populate a basic stub knowing the backend will validate the raw JWT.
+        user = {
+            id: 'teams-user',
+            email: 'teams-user@tenant',
+            name: 'Teams User',
+            roles: ['user']
+        };
+    } else if (account) {
+        user = {
+            id: account.localAccountId,
+            email: account.username,
+            name: account.name || account.username,
+            roles: (account.idTokenClaims?.roles as string[]) || [],
+        };
+    }
 
     // Handle dev mode socket auth
     useEffect(() => {
@@ -105,16 +142,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             localStorage.setItem('agent_ui_model', modelId);
         }
 
-        try {
-            await instance.loginPopup({
-                ...loginRequest,
-                loginHint: email
-            });
-        } catch (error) {
-            console.error("Login failed:", error);
-            throw error;
+        if (isTeamsContext) {
+            try {
+                // In Teams, use SSO to get an Entra ID token directly without popups
+                const token = await microsoftTeams.authentication.getAuthToken();
+                setTeamsToken(token);
+                // When we get the SSO token, we pass it to the backend via socket.
+                // Teams tokens use OBO flow to downstream services.
+                agentSocket.setAuthInfo(token, modelId, 'OBO', 'Teams User', ['user']);
+            } catch (error) {
+                console.error("[AuthContext] Teams SSO Login failed:", error);
+                throw error;
+            }
+        } else {
+            // Standard MSAL popup flow for web/Tauri
+            try {
+                await instance.loginPopup({
+                    ...loginRequest,
+                    loginHint: email
+                });
+            } catch (error) {
+                console.error("Login failed:", error);
+                throw error;
+            }
         }
-    }, [instance]);
+    }, [instance, isTeamsContext]);
 
     // Dev mode login - bypasses MSAL entirely
     const signInDev = useCallback(() => {
@@ -130,7 +182,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setDevModeActive(false);
             localStorage.removeItem('agent_ui_dev_mode');
         }
-        if (!!account) {
+        if (isTeamsContext) {
+            setTeamsToken(null);
+            // Teams SDK doesn't have a direct 'signOut'. The app just clears the session.
+        }
+        if (!!account && !isTeamsContext) {
             instance.logoutPopup().catch(e => console.error(e));
         }
         setAccessToken(null);
@@ -138,7 +194,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('agent_ui_auth_flow');
         localStorage.removeItem('agent_ui_mock_user');
         localStorage.removeItem('agent_ui_mock_token');
-    }, [instance, account, devModeActive]);
+    }, [instance, account, devModeActive, isTeamsContext]);
 
     const hasRole = useCallback((role: string): boolean => {
         return user?.roles.includes(role) ?? false;

@@ -1,0 +1,49 @@
+{
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.16",
+    "version": "1.0.0",
+    "id": "e4b47a96-6577-4cf7-8af3-df9b422171c7",
+    "packageName": "com.opsiq.agentic",
+    "developer": {
+        "name": "OpsIQ Internal Apps",
+        "websiteUrl": "https://example.com/opsiq",
+        "privacyUrl": "https://example.com/privacy",
+        "termsOfUseUrl": "https://example.com/terms"
+    },
+    "icons": {
+        "color": "color.png",
+        "outline": "outline.png"
+    },
+    "name": {
+        "short": "Ops IQ",
+        "full": "Ops IQ Integrated Intelligence Service"
+    },
+    "description": {
+        "short": "Ops IQ AI Agent Orchestrator",
+        "full": "Enterprise Agents for D365, Workday, ServiceNow and more"
+    },
+    "accentColor": "#FFFFFF",
+    "staticTabs": [
+        {
+            "entityId": "opsiq_tab",
+            "name": "Ops IQ",
+            "contentUrl": "https://example.com/some-tunnel-url-for-dev",
+            "scopes": [
+                "personal"
+            ]
+        }
+    ],
+    "permissions": [
+        "identity",
+        "messageTeamMembers"
+    ],
+    "validDomains": [
+        "example.com",
+        "*.ngrok.io",
+        "*.ngrok-free.app"
+    ],
+    "webApplicationInfo": {
+        "id": "${VITE_AZURE_CLIENT_ID}",
+        "resource": "api://${VITE_AZURE_CLIENT_ID}"
+    }
+}

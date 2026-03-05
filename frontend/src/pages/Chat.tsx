@@ -93,9 +93,7 @@ export const Chat: React.FC = () => {
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
     const [messages, setMessages] = useState<Message[]>([]);
     const [isThinking, setIsThinking] = useState(false);
-    const [thinkingSteps, setThinkingSteps] = useState<{ id: string, label: string, startTime: number, duration?: number, completed: boolean }[]>([]);
     const thinkingStepsRef = useRef<{ id: string, label: string, startTime: number, duration?: number, completed: boolean }[]>([]);
-    const [isThinkingExpanded, setIsThinkingExpanded] = useState(true);
     const [consumedActions, setConsumedActions] = useState<Set<string>>(new Set());
     const [pendingConfirmation, setPendingConfirmation] = useState<ConfirmationCardData | null>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -139,7 +137,6 @@ export const Chat: React.FC = () => {
         // CRITICAL: Clear messages immediately when session changes
         // This ensures we don't show stale data from previous session
         setMessages([]);
-        setThinkingSteps([]);
         thinkingStepsRef.current = [];
         setIsThinking(false);
         setPendingConfirmation(null);
@@ -221,9 +218,7 @@ export const Chat: React.FC = () => {
         setMessages(prev => [...prev, userMsg, thinkingMsg]);
 
         setIsThinking(true);
-        setThinkingSteps(initialSteps);
         thinkingStepsRef.current = initialSteps;
-        setIsThinkingExpanded(true); // Default to expanded for new activity
         abortControllerRef.current = new AbortController();
 
         try {
@@ -297,7 +292,6 @@ export const Chat: React.FC = () => {
                                 completed: false
                             }];
                             thinkingStepsRef.current = nextSteps;
-                            setThinkingSteps(nextSteps);
                             syncLiveSteps(nextSteps);
                             console.log('[Chat][SSE] Updated steps count:', nextSteps.length, '| Labels:', nextSteps.map(s => s.label.substring(0, 20)));
                         } else if (event === 'reasoning') {
@@ -330,7 +324,6 @@ export const Chat: React.FC = () => {
                                 completed: data.status === 'complete'
                             }];
                             thinkingStepsRef.current = nextSteps;
-                            setThinkingSteps(nextSteps);
                             syncLiveSteps(nextSteps);
                         } else if (event === 'message') {
                             console.log('[Chat][SSE] MESSAGE received, marking thinking complete');
@@ -396,7 +389,6 @@ export const Chat: React.FC = () => {
         last.completed = true;
         last.duration = (Date.now() - last.startTime) / 1000;
         thinkingStepsRef.current = lastSteps;
-        setThinkingSteps(lastSteps);
     };
 
     // Sync live thinking steps to the placeholder message
@@ -449,7 +441,6 @@ export const Chat: React.FC = () => {
         });
 
         // Clear active thinking steps
-        setThinkingSteps([]);
         thinkingStepsRef.current = [];
     };
     const handleError = (error: string) => {
