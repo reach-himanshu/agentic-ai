@@ -933,12 +933,27 @@ class PlannerAgent:
                 if template:
                     template_type = template.get("type", "")
                     
+                    import re
+                    # Extract raw text from AutoGen FunctionExecutionResult wrappers
+                    clean_content = msg_content
+                    if "FunctionExecutionResult(" in clean_content:
+                        match = re.search(r"FunctionExecutionResult\(content=(.*?),\s*name=", clean_content, re.DOTALL)
+                        if match:
+                            inner = match.group(1).strip()
+                            if (inner.startswith("'") and inner.endswith("'")) or (inner.startswith('"') and inner.endswith('"')):
+                                inner = inner[1:-1]
+                            if "TextContent(type=" in inner and "text=" in inner:
+                                text_match = re.search(r"text=(?:'|\")(.*?)(?:'|\"), annotations=", inner, re.DOTALL)
+                                if text_match:
+                                    inner = text_match.group(1)
+                            clean_content = inner.replace("\\n", "\n").replace("\\'", "'").replace('\\"', '"')
+
                     # For markdown templates, use raw text content directly
                     if template_type == "markdown":
                         await emit("Generating UI (Markdown Template)", stage="ui_generation", tool=tool_name, status="complete")
                         logger.info(f"[Planner] Config-driven markdown template applied for {tool_name}")
                         
-                        manifest = apply_ui_template(template, msg_content)
+                        manifest = apply_ui_template(template, clean_content)
                         return {
                             "type": "assistant_manifest",
                             "content": last_message.split("MANIFEST:")[0].strip() if "MANIFEST:" in last_message else last_message,

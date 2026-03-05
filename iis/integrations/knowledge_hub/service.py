@@ -5,14 +5,17 @@ from urllib.parse import quote
 
 logger = logging.getLogger(__name__)
 
+import os
+
 class KnowledgeHubClient:
     """
     Service client for the Armanino Knowledge Hub (Librarian Gateway).
     Encapsulates RAG search and document management.
     """
     
-    def __init__(self, base_url: str = "http://localhost:8001", verify: bool = True):
-        self.base_url = base_url.rstrip("/")
+    def __init__(self, base_url: Optional[str] = None, verify: bool = True):
+        url = base_url or os.environ.get("LIBRARIAN_URL", "http://127.0.0.1:8001")
+        self.base_url = url.rstrip("/")
         self.verify = verify
 
     async def search(self, query: str, domain: Optional[str] = None) -> List[Dict[str, Any]]:

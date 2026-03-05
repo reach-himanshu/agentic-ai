@@ -11,7 +11,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
   t2v-transformers:
     image: cr.weaviate.io/semitechnologies/transformers-inference:sentence-transformers-multi-qa-MiniLM-L6-cos-v1
@@ -41,6 +41,8 @@ services:
     restart: always
     ports:
       - "8000:8000"
+    volumes:
+      - ./iis:/app
     environment:
       - DATABASE_URL=postgresql+asyncpg://opsiq:opsiqpassword@postgres:5432/opsiq_sessions
       - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
@@ -48,6 +50,7 @@ services:
       - TRACELOOP_API_KEY=${TRACELOOP_API_KEY}
       - DD_API_KEY=${DD_API_KEY}
       - DD_SITE=${DD_SITE}
+      - LIBRARIAN_URL=http://librarian-gateway:8001
     depends_on:
       - postgres
 

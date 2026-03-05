@@ -21,8 +21,8 @@ const AREA_CONFIGS: AreaConfig[] = [
         label: 'Knowledge Hub',
         icon: '📚',
         pills: [
-            { label: 'Search Policies', action: 'ask', value: 'Search company policies' },
-            { label: 'Find Documents', action: 'ask', value: 'Help me find a document' },
+            { label: 'Search Policies', action: 'ask', value: 'What knowledge domains are available? Please list them and ask me what I would like to search for.' },
+            { label: 'Find Documents', action: 'ask', value: 'What document partitions are available? Please list them and ask me what I would like to search for.' },
         ]
     },
     {

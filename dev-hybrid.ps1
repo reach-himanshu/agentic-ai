@@ -4,10 +4,10 @@
 Write-Host "--- Starting Ops IQ Hybrid Environment ---" -ForegroundColor Cyan
 
 # 1. Ensure Infrastructure is running (skip if podman not available)
-Write-Host "[1/5] Starting Containers (Postgres, Weaviate)..."
+Write-Host "[1/5] Starting Containers (Postgres, t2v-transformers, Weaviate)..."
 $podmanPath = Get-Command podman -ErrorAction SilentlyContinue
 if ($podmanPath) {
-    podman compose up -d postgres weaviate
+    podman compose up -d postgres t2v-transformers weaviate
 }
 else {
     Write-Host "  [SKIP] Podman not found in PATH. Containers not started." -ForegroundColor Yellow
@@ -15,7 +15,7 @@ else {
 }
 
 # 2. Set Environment Variables
-$env:DATABASE_URL = "postgresql+asyncpg://opsiq:opsiqpassword@localhost:5432/opsiq_sessions"
+$env:DATABASE_URL = "postgresql+asyncpg://opsiq:opsiqpassword@localhost:5433/opsiq_sessions"
 $env:WEAVIATE_URL = "http://localhost:8080"
 
 # 3. Clean up existing processes
