@@ -182,6 +182,14 @@ def apply_ui_template(template: dict, data: Any) -> dict:
             "payload": str(data) if data else ""
         }
     
+    elif template_type == "timesheet":
+        # Timesheet is a specialised table grouping entries by day
+        return {
+            "componentType": "timesheet",
+            "title": title,
+            "payload": data if isinstance(data, list) else [data]
+        }
+    
     # Fallback to generic table
     return {
         "componentType": "table",
@@ -916,9 +924,16 @@ class PlannerAgent:
                 # Tool outputs contain FunctionExecutionResult or JSON data with tool names
                 tool_name = None
                 
-                # Check if any known tool names appear in the content
-                known_tools = ["snow_search_incidents", "snow_create_incident", "snow_list_approvals", 
-                              "wd_get_time_entries", "d365_search_accounts", "kb_search", "graph_list_events"]
+                # Dynamically build known_tools from all agent configs that have ui_templates defined
+                # This avoids manually maintaining a hardcoded list here
+                known_tools = set()
+                for aid in ["it_support", "hr", "sales", "onboarding", "pricing_assistant"]:
+                    try:
+                        cfg = load_agent_config(aid)
+                        known_tools.update(cfg.get("ui_templates", {}).keys())
+                    except Exception:
+                        pass
+
                 for kt in known_tools:
                     if kt in msg_content.lower() or kt in source.lower():
                         tool_name = kt
@@ -997,6 +1012,24 @@ class PlannerAgent:
                         # Strategy 2: Try direct JSON if content starts with [
                         if not extracted_json and msg_content.strip().startswith('[{'):
                             extracted_json = msg_content.strip()
+                        
+                        # Strategy 3: Extract from clean_content for dict-style JSON responses
+                        # (e.g. wd_get_my_timesheet returns {"week_start":..., "projects":[...]} not a list)
+                        if not extracted_json and clean_content.strip().startswith('{'):
+                            extracted_json = clean_content.strip()
+                            logger.info(f"[Planner] Extracted dict JSON from clean_content for {tool_name}")
+                        
+                        # Strategy 4: Find a JSON dict pattern directly in msg_content
+                        if not extracted_json and '{' in msg_content:
+                            match = re.search(r'(\{.*\})', msg_content, re.DOTALL)
+                            if match:
+                                candidate = match.group(1)
+                                try:
+                                    json.loads(candidate)  # Validate
+                                    extracted_json = candidate
+                                    logger.info(f"[Planner] Extracted dict JSON via regex for {tool_name}")
+                                except Exception:
+                                    pass
                         
                         if extracted_json:
                             # Clean up escaped quotes - handle both \" and \' patterns

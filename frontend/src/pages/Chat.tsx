@@ -143,7 +143,7 @@ export const Chat: React.FC = () => {
 
         const fetchAndInit = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/api/v1/chat/${sessionId}/history`);
+                const response = await fetch(`/api/v1/chat/${sessionId}/history`);
                 if (!isActive) return;
                 if (response.ok) {
                     const history = await response.json();
@@ -223,7 +223,7 @@ export const Chat: React.FC = () => {
 
         try {
             const sentToId = sessionId;
-            const response = await fetch('http://localhost:8000/api/v1/chat/stream', {
+            const response = await fetch('/api/v1/chat/stream', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

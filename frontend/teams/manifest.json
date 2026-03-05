@@ -1,8 +1,8 @@
 {
     "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
     "manifestVersion": "1.16",
-    "version": "1.0.0",
-    "id": "e4b47a96-6577-4cf7-8af3-df9b422171c7",
+    "version": "1.0.1",
+    "id": "f5c58b10-7688-4de8-9b04-df9b422171c8",
     "packageName": "com.opsiq.agentic",
     "developer": {
         "name": "OpsIQ Internal Apps",
@@ -27,7 +27,7 @@
         {
             "entityId": "opsiq_tab",
             "name": "Ops IQ",
-            "contentUrl": "https://example.com/some-tunnel-url-for-dev",
+            "contentUrl": "https://compositive-maisie-stickable.ngrok-free.dev",
             "scopes": [
                 "personal"
             ]
@@ -40,10 +40,11 @@
     "validDomains": [
         "example.com",
         "*.ngrok.io",
-        "*.ngrok-free.app"
+        "*.ngrok-free.app",
+        "compositive-maisie-stickable.ngrok-free.dev"
     ],
     "webApplicationInfo": {
-        "id": "${VITE_AZURE_CLIENT_ID}",
-        "resource": "api://${VITE_AZURE_CLIENT_ID}"
+        "id": "00000000-0000-0000-0000-000000000000",
+        "resource": "api://example.com/00000000-0000-0000-0000-000000000000"
     }
 }

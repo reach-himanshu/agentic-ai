@@ -80,3 +80,9 @@ firewall_repro_debug.txt
 iis/startup_log.txt
 iis/migrate_output.txt
 iis/migrate_to_postgres.py
+
+# Teams App Package (regenerated locally)
+frontend/teams/*.zip
+frontend/teams/check/
+frontend/teams/check2/
+frontend/teams/debug_zip/

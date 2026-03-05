@@ -32,7 +32,7 @@ export const SessionSidebar: React.FC<SessionSidebarProps> = ({
     const fetchSessions = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8000/api/v1/sessions?user_id=${userId}`);
+            const response = await fetch(`/api/v1/sessions?user_id=${userId}`);
             if (response.ok) {
                 const data = await response.json();
                 setSessions(data);
@@ -50,7 +50,7 @@ export const SessionSidebar: React.FC<SessionSidebarProps> = ({
         if (!window.confirm('Are you sure you want to delete this chat?')) return;
 
         try {
-            const response = await fetch(`http://localhost:8000/api/v1/sessions/${sessionId}?user_id=${userId}`, {
+            const response = await fetch(`/api/v1/sessions/${sessionId}?user_id=${userId}`, {
                 method: 'DELETE',
             });
             if (response.ok) {
